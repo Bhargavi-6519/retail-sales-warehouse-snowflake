@@ -49,3 +49,14 @@ target.is_current = 'N'
 WHEN NOT MATCHED THEN
 INSERT (customer_id, state, start_date, end_date, is_current)
 VALUES (source.customer_id, source.state, CURRENT_DATE, NULL, 'Y');
+
+CREATE SCHEMA IF NOT EXISTS GOLD;
+
+CREATE OR REPLACE TABLE GOLD.SALES_BY_STATE AS
+SELECT
+    d.state,
+    SUM(f.sales_price) AS total_sales
+FROM SILVER.FACT_SALES f
+JOIN SILVER.CUSTOMER_DIM d
+ON f.customer_sk = d.customer_sk
+GROUP BY d.state;
